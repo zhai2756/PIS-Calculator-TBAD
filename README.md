@@ -7,9 +7,9 @@
 
 ## 🔗 Live Calculator
 
-**👉 [Click here to use the calculator](https://yourname.github.io/PIS-Calculator-TBAD)**
+**👉 [Click here to use the calculator](https://zhai2756.github.io/PIS-Calculator-TBAD)**
 
-*(Replace `yourname` with your actual GitHub username after deployment)*
+
 
 ---
 
@@ -90,9 +90,9 @@ PIS Probability = 1 / (1 + e^(–logit))
 If you use this calculator in your research or clinical practice, please cite:
 
 ```
-[Your Name]. A Ridge Logistic Regression Model for Predicting Post-Implantation Syndrome 
+翟纪超. A Ridge Logistic Regression Model for Predicting Post-Implantation Syndrome 
 After TBAD Endovascular Repair: Development, Validation, and a Web-Based Calculator. 
-Journal of Vascular Surgery / European Journal of Vascular and Endovascular Surgery, [Year].
+Journal of Vascular Surgery / European Journal of Vascular and Endovascular Surgery, 2026.
 ```
 
 ---
@@ -118,8 +118,8 @@ This project is licensed under the **MIT License** — see [LICENSE](./LICENSE) 
 
 For questions, issues, or collaboration inquiries, please contact:
 
-- [Your Name] — [Your Email]  
-- [Your Institution / Department]
+- 翟纪超 — zhaijichao1999@163.com  
+- 苏北人民医院
 
 ---
 
