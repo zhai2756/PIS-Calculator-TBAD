@@ -3,17 +3,18 @@ message: "If you use this calculator, please cite both the calculator repository
 type: software
 title: "PIS Calculator for TBAD Endovascular Repair: A Web-Based Risk Prediction Tool"
 authors:
-  - family-names:翟
-    given-names: 纪超
-    affiliation: 苏北人民医院
+  - family-names: "Zhai"
+    given-names: "Jichao"
+    affiliation: "Subei People's Hospital, Yangzhou, Jiangsu, China"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
 repository-code: "https://github.com/zhai2756/PIS-Calculator-TBAD"
 version: 1.0.0
-date-released: 2025-06-30
+date-released: "2025-06-30"
 keywords:
-  - post-implantation syndrome
-  - TBAD
-  - TEVAR
-  - clinical prediction model
-  - logistic regression
-  - vascular surgery
+  - "post-implantation syndrome"
+  - "TBAD"
+  - "TEVAR"
+  - "clinical prediction model"
+  - "logistic regression"
+  - "vascular surgery"
 license: MIT
