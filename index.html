@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS风险预测计算器 — TBAD腔内修复术后</title>
+    <style>
+        :root {
+            --primary: #1a5276;
+            --primary-light: #2980b9;
+            --accent: #e74c3c;
+            --accent-light: #f39c12;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #e1e8ed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(26, 82, 118, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .badge-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-group .hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-wrap input, .input-wrap select {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-wrap input:focus, .input-wrap select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.15);
+        }
+
+        .unit {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            min-width: 50px;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(26, 82, 118, 0.25);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .probability-display {
+            text-align: center;
+            padding: 28px 20px;
+        }
+
+        .probability-value {
+            font-size: 3.2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .probability-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 24px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 14px;
+        }
+
+        .risk-low { background: var(--success); }
+        .risk-medium { background: var(--warning); }
+        .risk-high { background: var(--danger); }
+
+        .gauge-container {
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        .gauge-track {
+            height: 24px;
+            background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-marker {
+            position: absolute;
+            top: -6px;
+            width: 4px;
+            height: 36px;
+            background: #2c3e50;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .gauge-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        .advice-box {
+            border-left: 4px solid;
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            background: #f8f9fa;
+            margin-top: 16px;
+        }
+
+        .advice-box.low { border-color: var(--success); }
+        .advice-box.medium { border-color: var(--warning); }
+        .advice-box.high { border-color: var(--danger); }
+
+        .advice-box h4 {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .advice-box.low h4 { color: var(--success); }
+        .advice-box.medium h4 { color: var(--warning); }
+        .advice-box.high h4 { color: var(--danger); }
+
+        .advice-box p {
+            font-size: 0.88rem;
+            color: var(--text-light);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .detail-item {
+            background: var(--bg);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .detail-item strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .model-info {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        .model-info strong {
+            color: var(--text);
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.3rem; }
+            .probability-value { font-size: 2.4rem; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PIS 风险预测计算器</h1>
+            <p>TBAD 腔内修复术后炎症综合征（PIS）个体化风险评估</p>
+            <div class="badge-bar">
+                <span class="badge">基于 Ridge Logistic Regression（L2 正则化）</span>
+                <span class="badge">训练队列 n=554</span>
+                <span class="badge">外部验证 AUC=0.769</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-title">📋 患者信息输入</div>
+            <form id="predictForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="age">年龄</label>
+                        <span class="hint">建议范围：30 ~ 85 岁</span>
+                        <div class="input-wrap">
+                            <input type="number" id="age" name="age" min="18" max="100" step="1" required placeholder="例如：60">
+                            <span class="unit">岁</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="surgery_duration">手术时长</label>
+                        <span class="hint">建议范围：60 ~ 300 分钟</span>
+                        <div class="input-wrap">
+                            <input type="number" id="surgery_duration" name="surgery_duration" min="30" max="500" step="1" required placeholder="例如：150">
+                            <span class="unit">分钟</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contrast_dose">造影剂用量</label>
+                        <span class="hint">建议范围：20 ~ 60 mL</span>
+                        <div class="input-wrap">
+                            <input type="number" id="contrast_dose" name="contrast_dose" min="0" max="100" step="1" required placeholder="例如：30">
+                            <span class="unit">mL</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stent_count">支架植入数量</label>
+                        <span class="hint">建议范围：1 ~ 4 个</span>
+                        <div class="input-wrap">
+                            <input type="number" id="stent_count" name="stent_count" min="0" max="6" step="1" required placeholder="例如：3">
+                            <span class="unit">个</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tbad_stratum">TBAD 分型</label>
+                        <span class="hint">按复杂程度选择</span>
+                        <div class="input-wrap">
+                            <select id="tbad_stratum" name="tbad_stratum" required>
+                                <option value="0">0 — 复杂型（Complicated）</option>
+                                <option value="1">1 — 高危型（High-risk）</option>
+                                <option value="2" selected>2 — 非复杂型（Uncomplicated）</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="neutrophils">中性粒细胞计数</label>
+                        <span class="hint">建议范围：2.0 ~ 12.0 ×10⁹/L</span>
+                        <div class="input-wrap">
+                            <input type="number" id="neutrophils" name="neutrophils" min="0.5" max="20" step="0.01" required placeholder="例如：4.66">
+                            <span class="unit">×10⁹/L</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lymphocytes">淋巴细胞计数</label>
+                        <span class="hint">建议范围：0.5 ~ 3.5 ×10⁹/L</span>
+                        <div class="input-wrap">
+                            <input type="number" id="lymphocytes" name="lymphocytes" min="0.1" max="5" step="0.01" required placeholder="例如：1.95">
+                            <span class="unit">×10⁹/L</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aptt">活化部分凝血活酶时间（APTT）</label>
+                        <span class="hint">建议范围：20 ~ 60 秒</span>
+                        <div class="input-wrap">
+                            <input type="number" id="aptt" name="aptt" min="10" max="100" step="0.1" required placeholder="例如：40.7">
+                            <span class="unit">秒</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fibrinogen">纤维蛋白原</label>
+                        <span class="hint">建议范围：1.5 ~ 6.0 g/L</span>
+                        <div class="input-wrap">
+                            <input type="number" id="fibrinogen" name="fibrinogen" min="0.5" max="10" step="0.01" required placeholder="例如：3.94">
+                            <span class="unit">g/L</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-calculate" onclick="calculatePIS()">🔍 计算 PIS 风险</button>
+            </form>
+        </div>
+
+        <div class="card result-section" id="resultSection">
+            <div class="card-title">📊 预测结果</div>
+            <div class="probability-display">
+                <div class="probability-value" id="probValue">—</div>
+                <div class="probability-label">PIS 发生概率</div>
+                <div class="risk-badge" id="riskBadge">—</div>
+            </div>
+
+            <div class="gauge-container">
+                <div class="gauge-track">
+                    <div class="gauge-marker" id="gaugeMarker" style="left: 0%"></div>
+                </div>
+                <div class="gauge-labels">
+                    <span>0%</span>
+                    <span>10%</span>
+                    <span>30%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <div class="advice-box" id="adviceBox">
+                <h4 id="adviceTitle">临床建议</h4>
+                <p id="adviceText">—</p>
+            </div>
+
+            <div class="detail-grid" id="detailGrid">
+                <div class="detail-item">
+                    <strong>Logit 值</strong>
+                    <span id="logitValue">—</span>
+                </div>
+                <div class="detail-item">
+                    <strong>风险分层</strong>
+                    <span id="riskTier">—</span>
+                </div>
+                <div class="detail-item">
+                    <strong>模型外部验证 AUC</strong>
+                    <span>0.769</span>
+                </div>
+                <div class="detail-item">
+                    <strong>适用人群</strong>
+                    <span>TBAD 腔内修复术后患者</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">ℹ️ 模型说明</div>
+            <div class="model-info">
+                <p><strong>预测模型：</strong>带 L2 正则化的逻辑回归（Ridge Logistic Regression）</p>
+                <p><strong>正则化参数：</strong>penalty='elasticnet', l1_ratio=0.0（即纯 L2 正则化，C=0.1309）</p>
+                <p><strong>开发队列：</strong>554 例（PIS 发生率 13.4%）</p>
+                <p><strong>外部验证：</strong>174 例（AUC-ROC = 0.769, AUC-PR = 0.531, Brier = 0.195）</p>
+                <p><strong>入选特征：</strong>年龄、手术时长、造影剂用量、支架数量、TBAD 分型、中性粒细胞、淋巴细胞、APTT、纤维蛋白原</p>
+                <p><strong>风险分层阈值：</strong>低风险 &lt;10% | 中风险 10~30% | 高风险 &gt;30%</p>
+                <p><strong>声明：</strong>本计算器仅供临床辅助决策参考，不能替代医生的专业判断。建议在多中心前瞻性验证后投入临床使用。</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>基于 JVS/EJVES 标准构建 · 模型经外部验证 · 数据来源于国内单中心回顾性队列</p>
+        </footer>
+    </div>
+
+    <script>
+        // 原始值模型系数（已通过 RobustScaler + StandardScaler 参数反推验证）
+        const MODEL = {
+            intercept: 0.362624,
+            coeffs: {
+                age: -0.000539,
+                surgery_duration: 0.000017,
+                contrast_dose: -0.049867,
+                stent_count: 0.030304,
+                tbad_stratum: -1.159217,
+                neutrophils: 0.028992,
+                lymphocytes: 0.011586,
+                aptt: -0.000906,
+                fibrinogen: 0.022362
+            }
+        };
+
+        function calculatePIS() {
+            const form = document.getElementById('predictForm');
+            const fd = new FormData(form);
+
+            // 获取原始值
+            const age = parseFloat(fd.get('age'));
+            const surgery_duration = parseFloat(fd.get('surgery_duration'));
+            const contrast_dose = parseFloat(fd.get('contrast_dose'));
+            const stent_count = parseFloat(fd.get('stent_count'));
+            const tbad_stratum = parseFloat(fd.get('tbad_stratum'));
+            const neutrophils = parseFloat(fd.get('neutrophils'));
+            const lymphocytes = parseFloat(fd.get('lymphocytes'));
+            const aptt = parseFloat(fd.get('aptt'));
+            const fibrinogen = parseFloat(fd.get('fibrinogen'));
+
+            // 验证输入
+            if ([age, surgery_duration, contrast_dose, stent_count, tbad_stratum,
+                 neutrophils, lymphocytes, aptt, fibrinogen].some(v => isNaN(v))) {
+                alert('请填写所有输入项');
+                return;
+            }
+
+            // 计算 logit
+            const logit = MODEL.intercept
+                + MODEL.coeffs.age * age
+                + MODEL.coeffs.surgery_duration * surgery_duration
+                + MODEL.coeffs.contrast_dose * contrast_dose
+                + MODEL.coeffs.stent_count * stent_count
+                + MODEL.coeffs.tbad_stratum * tbad_stratum
+                + MODEL.coeffs.neutrophils * neutrophils
+                + MODEL.coeffs.lymphocytes * lymphocytes
+                + MODEL.coeffs.aptt * aptt
+                + MODEL.coeffs.fibrinogen * fibrinogen;
+
+            // 计算概率
+            const prob = 1 / (1 + Math.exp(-logit));
+            const probPct = prob * 100;
+
+            // 风险分层
+            let riskLabel, riskClass, adviceTitle, adviceText, riskTier;
+            if (probPct < 10) {
+                riskLabel = '低风险';
+                riskClass = 'risk-low';
+                adviceTitle = '低风险 — 标准护理';
+                adviceText = '建议常规围手术期护理；按常规频率进行体温监测和炎症指标检查。无需额外预防性干预。';
+                riskTier = '低风险（&lt;10%）';
+            } else if (probPct < 30) {
+                riskLabel = '中风险';
+                riskClass = 'risk-medium';
+                adviceTitle = '中风险 — 加强监测';
+                adviceText = '建议加强炎症监测（如 q12h 体温、CRP、PCT 等）；在无禁忌症情况下，可考虑预防性使用 NSAIDs 或糖皮质激素。';
+                riskTier = '中风险（10~30%）';
+            } else {
+                riskLabel = '高风险';
+                riskClass = 'risk-high';
+                adviceTitle = '高风险 — 积极干预';
+                adviceText = '建议密集监测（q6h 体温、动态炎症指标）；一旦出现发热，尽早行 CT 检查；建议多学科协作管理，积极预防性干预。';
+                riskTier = '高风险（&gt;30%）';
+            }
+
+            // 更新结果展示
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('active');
+
+            const probValue = document.getElementById('probValue');
+            probValue.textContent = probPct.toFixed(1) + '%';
+            probValue.style.color = probPct < 10 ? '#27ae60' : (probPct < 30 ? '#f39c12' : '#e74c3c');
+
+            const riskBadge = document.getElementById('riskBadge');
+            riskBadge.textContent = riskLabel;
+            riskBadge.className = 'risk-badge ' + riskClass;
+
+            // 更新仪表盘
+            const gaugeMarker = document.getElementById('gaugeMarker');
+            gaugeMarker.style.left = Math.min(100, Math.max(0, probPct)) + '%';
+
+            // 更新建议
+            const adviceBox = document.getElementById('adviceBox');
+            adviceBox.className = 'advice-box ' + (probPct < 10 ? 'low' : (probPct < 30 ? 'medium' : 'high'));
+            document.getElementById('adviceTitle').textContent = adviceTitle;
+            document.getElementById('adviceText').textContent = adviceText;
+
+            // 更新详情
+            document.getElementById('logitValue').textContent = logit.toFixed(3);
+            document.getElementById('riskTier').textContent = riskTier;
+
+            // 滚动到结果区域
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 支持回车键计算
+        document.getElementById('predictForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                calculatePIS();
+            }
+        });
+    </script>
+</body>
+</html>
